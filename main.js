@@ -45,7 +45,7 @@ function updateCurveColor() {
 // Laden des GLB-Modells
 const loader = new GLTFLoader();
 let pc;
-loader.load('./uploads_files_2569780_lian+li+pc.glb', (gltf) => {
+loader.load('./uploads_files_2569780_lian+li+pctransparent.glb', (gltf) => {
   pc = gltf.scene;
   pc.scale.setScalar(300);
   pc.position.set(0, -500, 0);
