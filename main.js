@@ -4,6 +4,9 @@ import { GrannyKnot } from 'three/examples/jsm/curves/CurveExtras.js';
 
 // Projekt von Simon, Moritz und Lukas
 
+const VERSCHIEBUNG_X =  0;
+const VERSCHIEBUNG_Y = -80;
+const VERSCHIEBUNG_Z = 100;
 
 // Szene, Kamera und Renderer
 const scene = new THREE.Scene();
@@ -33,10 +36,13 @@ scene.add(directionalLight);
 
 // Wasserkühlung mit dynamischer Farbe
 const curve = new GrannyKnot();
-const geometryCurve = new THREE.TubeGeometry(curve, 100, 2, 8, true);
+const geometryCurve = new THREE.TubeGeometry(curve, 1000, 3, 16, false);
 const materialCurve = new THREE.MeshStandardMaterial({ color: 0x00ffff, wireframe: true, side: THREE.DoubleSide });
 const tube = new THREE.Mesh(geometryCurve, materialCurve);
 scene.add(tube);
+tube.position.set(VERSCHIEBUNG_X,VERSCHIEBUNG_Y,VERSCHIEBUNG_Z);
+tube.updateMatrix();
+tube.updateMatrixWorld();
 
 // Dynamischer Farbwechsel für die Wasserkühlung
 function updateCurveColor() {
@@ -57,15 +63,6 @@ loader.load('./uploads_files_2569780_lian+li+pctransparent.glb', (gltf) => {
   console.error(error);
 });
 
-// Leichte, schwebende Animation für den PC
-function updatePcPosition() {
-  if (pc) {
-    const time = clock.getElapsedTime();
-    pc.position.y = Math.sin(time * 1.5) * 0.5 - 5;
-    pc.rotation.y = time * 0.5; // langsame Rotation für einen realistischen Effekt
-  }
-}
-
 // Kamera als Achterbahn entlang der Kurve
 function updateCamera() {
   const time = clock.getElapsedTime();
@@ -74,7 +71,14 @@ function updateCamera() {
   const t2 = ((time + 0.1) % loopTime) / loopTime;
 
   const pos = tube.geometry.parameters.path.getPointAt(t);
+  pos.x += VERSCHIEBUNG_X;
+  pos.y += VERSCHIEBUNG_Y;
+  pos.z += VERSCHIEBUNG_Z;
   const pos2 = tube.geometry.parameters.path.getPointAt(t2);
+  pos2.x += VERSCHIEBUNG_X;
+  pos2.y += VERSCHIEBUNG_Y;
+  pos2.z += VERSCHIEBUNG_Z;
+  console.log(pos,pos2)
 
   camera.position.copy(pos);
   camera.lookAt(pos2);
@@ -84,7 +88,8 @@ function updateCamera() {
 function animate() {
   updateCamera();
   updateCurveColor();
-  updatePcPosition();
+
+  console.log(tube.position);
 
   renderer.render(scene, camera);
 }
