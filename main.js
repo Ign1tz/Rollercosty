@@ -4,9 +4,9 @@ import { GrannyKnot } from 'three/examples/jsm/curves/CurveExtras.js';
 
 // Projekt von Simon, Moritz und Lukas
 
-const VERSCHIEBUNG_X =  0;
-const VERSCHIEBUNG_Y = -80;
-const VERSCHIEBUNG_Z = 100;
+const VERSCHIEBUNG_X =  100;
+const VERSCHIEBUNG_Y = 0;
+const VERSCHIEBUNG_Z = -252;
 
 // Szene, Kamera und Renderer
 const scene = new THREE.Scene();
@@ -17,7 +17,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
-
 // Anpassung der Fenstergröße
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -35,13 +34,34 @@ directionalLight.castShadow = true;
 scene.add(directionalLight);
 
 // Wasserkühlung mit dynamischer Farbe
-const curve = new THREE.CubicBezierCurve3(
-    new THREE.Vector3( -10, 0, 0 ),
-    new THREE.Vector3( -5, 15, 0 ),
-    new THREE.Vector3( 20, 15, 0 ),
-    new THREE.Vector3( 10, 0, 0 )
+
+const line = new THREE.LineCurve3(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(10, 0, 0),
 );
-const geometryCurve = new THREE.TubeGeometry(curve, 200, 2, 8, true);
+
+const line1 = new THREE.CubicBezierCurve3(
+    new THREE.Vector3(10, 0, 0),
+    new THREE.Vector3(10, 0, 0),
+    new THREE.Vector3(20, 0, 0),
+    new THREE.Vector3(20, 10, 0),
+
+)
+
+const line2 = new THREE.LineCurve3(
+    new THREE.Vector3(20, 10, 0),
+    new THREE.Vector3(20, 20, 0),
+);
+
+const line3 = new THREE.LineCurve3(
+    new THREE.Vector3(10, 15, 10),
+    new THREE.Vector3(10, 20, 15),
+);
+
+const curve = new THREE.CurvePath();
+curve.curves = Array(line);
+
+const geometryCurve = new THREE.TubeGeometry(curve, 200, 2, 8, false);
 const materialCurve = new THREE.MeshStandardMaterial({ color: 0x00ffff, wireframe: true, side: THREE.DoubleSide });
 const tube = new THREE.Mesh(geometryCurve, materialCurve);
 scene.add(tube);
@@ -71,7 +91,7 @@ loader.load('./uploads_files_2569780_lian+li+pctransparent.glb', (gltf) => {
 // Kamera als Achterbahn entlang der Kurve
 function updateCamera() {
   const time = clock.getElapsedTime();
-  const loopTime = 20;
+  const loopTime = 5;
   const t = (time % loopTime) / loopTime;
   const t2 = ((time + 0.1) % loopTime) / loopTime;
 
@@ -87,7 +107,15 @@ function updateCamera() {
   console.log(pos,pos2)
 
   camera.position.copy(pos);
-  camera.lookAt(pos2);
+  const tangent = tube.geometry.parameters.path.getTangentAt(t);
+  const lookAtTangent = tube.geometry.parameters.path.getTangentAt(t2);
+
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(0, 0, 1), // Standardrichtung der Kamera
+      lookAtTangent.clone().normalize() // Richtung entlang der Kurve
+  );
+
+  camera.quaternion.copy(quaternion);
 }
 
 // Haupt-Animationsfunktion
