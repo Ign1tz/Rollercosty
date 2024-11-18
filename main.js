@@ -35,8 +35,13 @@ directionalLight.castShadow = true;
 scene.add(directionalLight);
 
 // Wasserkühlung mit dynamischer Farbe
-const curve = new GrannyKnot();
-const geometryCurve = new THREE.TubeGeometry(curve, 1000, 3, 16, false);
+const curve = new THREE.CubicBezierCurve3(
+    new THREE.Vector3( -10, 0, 0 ),
+    new THREE.Vector3( -5, 15, 0 ),
+    new THREE.Vector3( 20, 15, 0 ),
+    new THREE.Vector3( 10, 0, 0 )
+);
+const geometryCurve = new THREE.TubeGeometry(curve, 200, 2, 8, true);
 const materialCurve = new THREE.MeshStandardMaterial({ color: 0x00ffff, wireframe: true, side: THREE.DoubleSide });
 const tube = new THREE.Mesh(geometryCurve, materialCurve);
 scene.add(tube);
@@ -71,6 +76,7 @@ function updateCamera() {
   const t2 = ((time + 0.1) % loopTime) / loopTime;
 
   const pos = tube.geometry.parameters.path.getPointAt(t);
+  console.log(pos)
   pos.x += VERSCHIEBUNG_X;
   pos.y += VERSCHIEBUNG_Y;
   pos.z += VERSCHIEBUNG_Z;
