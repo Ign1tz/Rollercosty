@@ -12,7 +12,7 @@ const VERSCHIEBUNG_Y = 0;
 const VERSCHIEBUNG_Z = -252;
 
 const TESTTIME = 40;
-const ACTUALTIME = TESTTIME;
+let ACTUALTIME = TESTTIME;
 
 // Szene, Kamera und Renderer
 const scene = new THREE.Scene();
@@ -72,12 +72,13 @@ loader.load('./untitled.glb', (gltf) => {
 // Kamera als Achterbahn entlang der Kurve
 function updateCamera() {
     const time = clock.getElapsedTime();
-    const loopTime = ACTUALTIME;
+    let loopTime = ACTUALTIME;
+
     const t = (time % loopTime) / loopTime;
     const t2 = ((time + 0.1) % loopTime) / loopTime;
-
     const pos = tube.geometry.parameters.path.getPointAt(t);
-    console.log(pos)
+
+   // console.log(pos)
     pos.x += VERSCHIEBUNG_X;
     pos.y += VERSCHIEBUNG_Y;
     pos.z += VERSCHIEBUNG_Z;
@@ -85,7 +86,7 @@ function updateCamera() {
     pos2.x += VERSCHIEBUNG_X;
     pos2.y += VERSCHIEBUNG_Y;
     pos2.z += VERSCHIEBUNG_Z;
-    console.log(pos, pos2)
+    // console.log(pos, pos2)
 
 
     camera.position.copy(pos);
